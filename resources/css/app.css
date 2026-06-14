@@ -1,0 +1,60 @@
+/* --- Stieglitz SP (для логотипа) --- */
+@font-face {
+  font-family: 'Stieglitz SP';
+  src: url('/fonts/StieglitzSP-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --- (основной шрифт сайта) --- */
+
+/* Mathison Regular */
+@font-face {
+  font-family: 'Mathison';
+  src: url('/public/fonts/Renaissance.otf') format('opentype'); /* ИСПРАВЛЕНО: добавлено -c- */
+  font-weight: 4000;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Mathison Regular Italic */
+@font-face {
+  font-family: 'Mathison';
+  src: url('/public/fonts/Renaissance.otf') format('opentype'); /* ИСПРАВЛЕНО: добавлено -c- */
+  font-weight: 4000;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Mathison Bold */
+@font-face {
+  font-family: 'Mathison';
+  src: url('/public/fonts/Renaissance.otf') format('opentype'); /* ИСПРАВЛЕНО: добавлено -c- */
+  font-weight: 7000;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Mathison Bold Italic */
+@font-face {
+  font-family: 'Mathison';
+  src: url('/fonts/Renaissance.otf') format('opentype'); /* ИСПРАВЛЕНО: добавлено -c- */
+  font-weight: 7000;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* =============================================
+   TAILWIND CSS
+   ============================================= */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =============================================
+   ГЛОБАЛЬНЫЕ СТИЛИ
+   ============================================= */
+body {
+  @apply font-sans text-gray-900;
+}

@@ -1,7 +1,23 @@
 #!/bin/bash
-# Применяем миграции (force нужен для продакшена)
+
+# Права на папки
+chmod -R 777 /var/www/html/storage
+chmod -R 777 /var/www/html/bootstrap/cache
+
+# Очистка кэша
+php artisan config:clear
+php artisan cache:clear
+php artisan route:clear
+php artisan view:clear
+
+# Миграции
 php artisan migrate --force
 
-# Запускаем PHP-FPM и Nginx в фоновом режиме
-php-fpm -D &
+# Генерация оптимизированного автозагрузчика
+composer dump-autoload --optimize
+
+# Запуск PHP-FPM
+php-fpm
+
+# Запуск Nginx
 nginx -g "daemon off;"

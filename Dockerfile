@@ -1,61 +1,46 @@
-# Базовый образ PHP 8.4 с FPM
 FROM php:8.4-fpm
 
-# Устанавливаем системные зависимости и расширения PHP
+# Системные зависимости
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git \
-    curl \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip \
-    nginx \
-    libzip-dev \
-    default-libmysqlclient-dev \
+    git curl libpng-dev libjpeg-dev libfreetype6-dev \
+    libonig-dev libxml2-dev zip unzip nginx libzip-dev \
+    default-libmysqlclient-dev supervisor \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
-        pdo \
-        pdo_mysql \
-        mbstring \
-        exif \
-        pcntl \
-        bcmath \
-        gd \
-        zip \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+        pdo pdo_mysql mbstring exif pcntl bcmath gd zip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Устанавливаем Composer
+# Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Создаем рабочую директорию
+# Настройка PHP для вывода ошибок в логи
+RUN echo "display_errors = On" > /usr/local/etc/php/conf.d/custom.ini && \
+    echo "display_startup_errors = On" >> /usr/local/etc/php/conf.d/custom.ini && \
+    echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/custom.ini && \
+    echo "log_errors = On" >> /usr/local/etc/php/conf.d/custom.ini && \
+    echo "error_log = /proc/self/fd/2" >> /usr/local/etc/php/conf.d/custom.ini
+
 WORKDIR /var/www/html
 
-# Копируем файлы проекта
+# Копируем проект
 COPY . .
 
-# Устанавливаем зависимости Laravel
+# Устанавливаем зависимости
 ENV COMPOSER_MEMORY_LIMIT=-1
 ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install --optimize-autoloader --no-dev --no-interaction
 
-# Настраиваем права доступа
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
+# Права доступа (ПОСЛЕ composer install!)
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod -R 777 /var/www/html/storage && \
+    chmod -R 777 /var/www/html/bootstrap/cache
 
-# Копируем конфигурацию Nginx
+# Nginx конфиг
 COPY docker/nginx.conf /etc/nginx/sites-available/default
 
-# Открываем порт
+# Supervisor конфиг для управления процессами
+COPY docker/supervisord.conf /etc/supervisor/conf.d/laravel.conf
+
 EXPOSE 80
 
-# Копируем скрипт запуска
-COPY docker/start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
-
-# Запускаем скрипт
-CMD ["/usr/local/bin/start.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/laravel.conf"]

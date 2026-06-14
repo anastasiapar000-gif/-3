@@ -1,5 +1,5 @@
-# Базовый образ PHP 8.3 с FPM
-FROM php:8.3-fpm
+# Базовый образ PHP 8.4 с FPM
+FROM php:8.4-fpm
 
 # Устанавливаем системные зависимости и расширения PHP
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -39,6 +39,7 @@ COPY . .
 
 # Устанавливаем зависимости Laravel
 ENV COMPOSER_MEMORY_LIMIT=-1
+ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN composer install --optimize-autoloader --no-dev --no-interaction
 
 # Настраиваем права доступа
